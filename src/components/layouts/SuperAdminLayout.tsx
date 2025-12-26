@@ -1,5 +1,7 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useSuperAdmin } from '../../contexts/SuperAdminContext';
+import { Button } from '../../components/ui/button';
+import { Shield, LayoutDashboard, Store, LogOut } from 'lucide-react';
 
 export default function SuperAdminLayout() {
     const { logout } = useSuperAdmin();
@@ -10,40 +12,51 @@ export default function SuperAdminLayout() {
         navigate('/super-admin/login');
     };
 
+    const navItems = [
+        { to: '/super-admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/super-admin/restaurants', icon: Store, label: 'Restaurants' },
+    ];
+
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <header className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Super Admin Panel</h1>
-                        <p className="text-sm text-gray-600">Restaurant SaaS Management</p>
+            <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <Shield className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div>
+                                <h1 className="text-lg font-bold text-gray-900">Super Admin</h1>
+                                <p className="text-xs text-gray-600">Restaurant SaaS Platform</p>
+                            </div>
+                        </div>
+                        <Button variant="outline" onClick={handleLogout} size="sm">
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                        </Button>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                    >
-                        Logout
-                    </button>
                 </div>
             </header>
 
             {/* Navigation */}
             <nav className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex space-x-8">
-                        <Link
-                            to="/super-admin/dashboard"
-                            className="px-3 py-4 text-sm font-medium text-gray-700 hover:text-orange-600 border-b-2 border-transparent hover:border-orange-600 transition-colors"
-                        >
-                            Dashboard
-                        </Link>
-                        <Link
-                            to="/super-admin/restaurants"
-                            className="px-3 py-4 text-sm font-medium text-gray-700 hover:text-orange-600 border-b-2 border-transparent hover:border-orange-600 transition-colors"
-                        >
-                            Restaurants
-                        </Link>
+                    <div className="flex space-x-1">
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.to}
+                                    to={item.to}
+                                    className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-t-lg transition-colors"
+                                >
+                                    <Icon className="w-4 h-4" />
+                                    {item.label}
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
             </nav>

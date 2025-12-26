@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import * as firestoreService from '../../lib/firestore';
 import type { Restaurant } from '../../contexts/DataContext';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Textarea } from '../../components/ui/textarea';
+import { Switch } from '../../components/ui/switch';
+import { Badge } from '../../components/ui/badge';
+import { X } from 'lucide-react';
 
 export default function RestaurantForm() {
     const { id } = useParams();
@@ -116,210 +124,185 @@ export default function RestaurantForm() {
     }
 
     return (
-        <div>
-            <div className="mb-8">
-                <h2 className="text-3xl font-bold text-gray-900">
+        <div className="space-y-6">
+            <div>
+                <h1 className="text-3xl font-bold text-gray-900">
                     {isEdit ? 'Edit Restaurant' : 'Add New Restaurant'}
-                </h2>
+                </h1>
                 <p className="text-gray-600 mt-2">
-                    {isEdit ? 'Update restaurant information' : 'Create a new restaurant'}
+                    {isEdit ? 'Update restaurant information' : 'Create a new restaurant in the platform'}
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
-                {/* Basic Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Restaurant Name *
-                        </label>
-                        <input
-                            type="text"
-                            required
-                            value={formData.name}
-                            onChange={(e) => handleNameChange(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            placeholder="My Restaurant"
-                        />
-                    </div>
+            <form onSubmit={handleSubmit}>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Restaurant Information</CardTitle>
+                        <CardDescription>Basic details about the restaurant</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {/* Basic Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Restaurant Name *</Label>
+                                <Input
+                                    id="name"
+                                    required
+                                    value={formData.name}
+                                    onChange={(e) => handleNameChange(e.target.value)}
+                                    placeholder="My Restaurant"
+                                />
+                            </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Slug * {isEdit && '(Cannot be changed)'}
-                        </label>
-                        <input
-                            type="text"
-                            required
-                            value={formData.slug}
-                            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                            disabled={isEdit}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100"
-                            placeholder="my-restaurant"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">URL: /r/{formData.slug}</p>
-                    </div>
-                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="slug">
+                                    URL Slug * {isEdit && <span className="text-gray-500 text-xs">(Cannot be changed)</span>}
+                                </Label>
+                                <Input
+                                    id="slug"
+                                    required
+                                    value={formData.slug}
+                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                                    disabled={isEdit}
+                                    placeholder="my-restaurant"
+                                />
+                                <p className="text-xs text-gray-500">URL: /r/{formData.slug || 'your-slug'}</p>
+                            </div>
+                        </div>
 
-                {/* Contact Information */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Email *
-                        </label>
-                        <input
-                            type="email"
-                            required
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            placeholder="contact@restaurant.com"
-                        />
-                    </div>
+                        {/* Contact Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email *</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    required
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    placeholder="contact@restaurant.com"
+                                />
+                            </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Phone *
-                        </label>
-                        <input
-                            type="tel"
-                            required
-                            value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            placeholder="+91 9876543210"
-                        />
-                    </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone *</Label>
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    required
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                    placeholder="+91 9876543210"
+                                />
+                            </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            WhatsApp
-                        </label>
-                        <input
-                            type="tel"
-                            value={formData.whatsapp}
-                            onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            placeholder="+91 9876543210"
-                        />
-                    </div>
-                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="whatsapp">WhatsApp</Label>
+                                <Input
+                                    id="whatsapp"
+                                    type="tel"
+                                    value={formData.whatsapp}
+                                    onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                                    placeholder="+91 9876543210"
+                                />
+                            </div>
+                        </div>
 
-                {/* Address */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Address *
-                    </label>
-                    <input
-                        type="text"
-                        required
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        placeholder="123 Food Street, City"
-                    />
-                </div>
+                        {/* Address & Hours */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="address">Address *</Label>
+                                <Input
+                                    id="address"
+                                    required
+                                    value={formData.address}
+                                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                    placeholder="123 Food Street, City"
+                                />
+                            </div>
 
-                {/* Opening Hours */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Opening Hours *
-                    </label>
-                    <input
-                        type="text"
-                        required
-                        value={formData.openingHours}
-                        onChange={(e) => setFormData({ ...formData, openingHours: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        placeholder="11:00 AM - 11:00 PM"
-                    />
-                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="hours">Opening Hours *</Label>
+                                <Input
+                                    id="hours"
+                                    required
+                                    value={formData.openingHours}
+                                    onChange={(e) => setFormData({ ...formData, openingHours: e.target.value })}
+                                    placeholder="11:00 AM - 11:00 PM"
+                                />
+                            </div>
+                        </div>
 
-                {/* Cuisine Types */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Cuisine Types *
-                    </label>
-                    <div className="flex space-x-2 mb-2">
-                        <input
-                            type="text"
-                            value={formData.cuisineInput}
-                            onChange={(e) => setFormData({ ...formData, cuisineInput: e.target.value })}
-                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCuisine())}
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                            placeholder="e.g., Indian, Chinese, Italian"
-                        />
-                        <button
+                        {/* Cuisine Types */}
+                        <div className="space-y-2">
+                            <Label htmlFor="cuisine">Cuisine Types *</Label>
+                            <div className="flex gap-2">
+                                <Input
+                                    id="cuisine"
+                                    value={formData.cuisineInput}
+                                    onChange={(e) => setFormData({ ...formData, cuisineInput: e.target.value })}
+                                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCuisine())}
+                                    placeholder="e.g., Indian, Chinese, Italian"
+                                />
+                                <Button type="button" onClick={handleAddCuisine} variant="outline">
+                                    Add
+                                </Button>
+                            </div>
+                            {formData.cuisine.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {formData.cuisine.map((cuisine) => (
+                                        <Badge key={cuisine} variant="secondary" className="gap-1">
+                                            {cuisine}
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveCuisine(cuisine)}
+                                                className="ml-1 hover:text-red-600"
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Description */}
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea
+                                id="description"
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                rows={3}
+                                placeholder="Brief description of the restaurant..."
+                            />
+                        </div>
+
+                        {/* Status */}
+                        <div className="flex items-center space-x-2">
+                            <Switch
+                                id="isOpen"
+                                checked={formData.isOpen}
+                                onCheckedChange={(checked) => setFormData({ ...formData, isOpen: checked })}
+                            />
+                            <Label htmlFor="isOpen" className="cursor-pointer">
+                                Restaurant is Active
+                            </Label>
+                        </div>
+                    </CardContent>
+                    <CardFooter className="flex justify-end gap-3">
+                        <Button
                             type="button"
-                            onClick={handleAddCuisine}
-                            className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                            variant="outline"
+                            onClick={() => navigate('/super-admin/restaurants')}
                         >
-                            Add
-                        </button>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {formData.cuisine.map((cuisine) => (
-                            <span
-                                key={cuisine}
-                                className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm flex items-center space-x-2"
-                            >
-                                <span>{cuisine}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemoveCuisine(cuisine)}
-                                    className="text-orange-600 hover:text-orange-800"
-                                >
-                                    ×
-                                </button>
-                            </span>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Description */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Description
-                    </label>
-                    <textarea
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        rows={3}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        placeholder="Brief description of the restaurant..."
-                    />
-                </div>
-
-                {/* Status */}
-                <div className="flex items-center space-x-2">
-                    <input
-                        type="checkbox"
-                        id="isOpen"
-                        checked={formData.isOpen}
-                        onChange={(e) => setFormData({ ...formData, isOpen: e.target.checked })}
-                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                    />
-                    <label htmlFor="isOpen" className="text-sm font-medium text-gray-700">
-                        Restaurant is Active
-                    </label>
-                </div>
-
-                {/* Actions */}
-                <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
-                    <button
-                        type="button"
-                        onClick={() => navigate('/super-admin/restaurants')}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={saving}
-                        className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50"
-                    >
-                        {saving ? 'Saving...' : isEdit ? 'Update Restaurant' : 'Create Restaurant'}
-                    </button>
-                </div>
+                            Cancel
+                        </Button>
+                        <Button type="submit" disabled={saving}>
+                            {saving ? 'Saving...' : isEdit ? 'Update Restaurant' : 'Create Restaurant'}
+                        </Button>
+                    </CardFooter>
+                </Card>
             </form>
         </div>
     );
