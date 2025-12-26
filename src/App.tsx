@@ -3,6 +3,9 @@ import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { SuperAdminProvider } from './contexts/SuperAdminContext';
 
+// Landing page
+import LandingPage from './pages/LandingPage';
+
 // Customer pages
 import RestaurantHome from './pages/customer/RestaurantHome';
 import MenuPage from './pages/customer/MenuPage';
@@ -38,6 +41,9 @@ export default function App() {
       <SuperAdminProvider>
         <AuthProvider>
           <Routes>
+            {/* Landing Page */}
+            <Route path="/" element={<LandingPage />} />
+
             {/* Super Admin Routes */}
             <Route path="/super-admin/login" element={<SuperAdminLogin />} />
             <Route
@@ -74,10 +80,12 @@ export default function App() {
               }
             />
 
-            {/* Restaurant Admin Routes - Wrapped with RestaurantApp */}
+            {/* Admin Login - Not wrapped, redirects after login */}
             <Route path="/admin/login" element={<AdminLogin />} />
+
+            {/* Admin Routes for specific restaurant */}
             <Route
-              path="/admin/*"
+              path="/admin/:slug/*"
               element={
                 <RestaurantApp>
                   <ProtectedRoute>
@@ -95,9 +103,6 @@ export default function App() {
                 </RestaurantApp>
               }
             />
-
-            {/* Default redirect to demo restaurant */}
-            <Route path="/" element={<Navigate to="/r/demo-restaurant" replace />} />
           </Routes>
         </AuthProvider>
       </SuperAdminProvider>
