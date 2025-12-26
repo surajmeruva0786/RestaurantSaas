@@ -61,6 +61,25 @@ export interface RestaurantSettings {
   rating?: number;
 }
 
+export interface Restaurant {
+  id: string;
+  slug: string;
+  name: string;
+  address: string;
+  phone: string;
+  whatsapp: string;
+  email: string;
+  openingHours: string;
+  isOpen: boolean;
+  cuisine: string[];
+  rating?: number;
+  description?: string;
+  logo?: string;
+  coverImage?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface DataContextType {
   menuItems: MenuItem[];
   categories: Category[];
@@ -160,7 +179,7 @@ const initialSettings: RestaurantSettings = {
   rating: 4.5,
 };
 
-export function DataProvider({ children }: { children: ReactNode }) {
+export function DataProvider({ children, restaurantId }: { children: ReactNode; restaurantId: string }) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -176,33 +195,33 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const initializeData = async () => {
       try {
         // Check if settings exist in Firestore, if not initialize with default
-        const firestoreSettings = await firestoreService.getSettings();
+        const firestoreSettings = await firestoreService.getSettings(restaurantId);
         if (!firestoreSettings) {
-          await firestoreService.initializeSettings(initialSettings);
+          await firestoreService.initializeSettings(restaurantId, initialSettings);
         }
 
         // Subscribe to real-time updates
-        const unsubMenuItems = firestoreService.subscribeToMenuItems((items) => {
+        const unsubMenuItems = firestoreService.subscribeToMenuItems(restaurantId, (items) => {
           setMenuItems(items.length > 0 ? items : initialMenuItems);
         });
 
-        const unsubCategories = firestoreService.subscribeToCategories((cats) => {
+        const unsubCategories = firestoreService.subscribeToCategories(restaurantId, (cats) => {
           setCategories(cats.length > 0 ? cats : initialCategories);
         });
 
-        const unsubOrders = firestoreService.subscribeToOrders((orders) => {
+        const unsubOrders = firestoreService.subscribeToOrders(restaurantId, (orders) => {
           setOrders(orders);
         });
 
-        const unsubReservations = firestoreService.subscribeToReservations((reservations) => {
+        const unsubReservations = firestoreService.subscribeToReservations(restaurantId, (reservations) => {
           setReservations(reservations);
         });
 
-        const unsubFeedbacks = firestoreService.subscribeToFeedbacks((feedbacks) => {
+        const unsubFeedbacks = firestoreService.subscribeToFeedbacks(restaurantId, (feedbacks) => {
           setFeedbacks(feedbacks);
         });
 
-        const unsubSettings = firestoreService.subscribeToSettings((settings) => {
+        const unsubSettings = firestoreService.subscribeToSettings(restaurantId, (settings) => {
           if (settings) {
             setSettings(settings);
           }
@@ -219,21 +238,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         // Initialize default data if collections are empty
         const [menuItemsData, categoriesData] = await Promise.all([
-          firestoreService.getMenuItems(),
-          firestoreService.getCategories(),
+          firestoreService.getMenuItems(restaurantId),
+          firestoreService.getCategories(restaurantId),
         ]);
 
         if (menuItemsData.length === 0) {
           // Initialize with default menu items
           for (const item of initialMenuItems) {
-            await firestoreService.addMenuItem(item);
+            await firestoreService.addMenuItem(restaurantId, item);
           }
         }
 
         if (categoriesData.length === 0) {
           // Initialize with default categories
           for (const category of initialCategories) {
-            await firestoreService.addCategory(category);
+            await firestoreService.addCategory(restaurantId, category);
           }
         }
 
@@ -254,11 +273,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return () => {
       unsubscribers.forEach((unsub) => unsub());
     };
-  }, []);
+  }, [restaurantId]);
 
   const addMenuItem = async (item: Omit<MenuItem, 'id'>) => {
     try {
-      await firestoreService.addMenuItem(item);
+      await firestoreService.addMenuItem(restaurantId, item);
     } catch (error) {
       console.error('Error adding menu item:', error);
     }
@@ -266,7 +285,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const updateMenuItem = async (id: string, item: Partial<MenuItem>) => {
     try {
-      await firestoreService.updateMenuItem(id, item);
+      await firestoreService.updateMenuItem(restaurantId, id, item);
     } catch (error) {
       console.error('Error updating menu item:', error);
     }
@@ -274,7 +293,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const deleteMenuItem = async (id: string) => {
     try {
-      await firestoreService.deleteMenuItem(id);
+      await firestoreService.deleteMenuItem(restaurantId, id);
     } catch (error) {
       console.error('Error deleting menu item:', error);
     }
@@ -282,7 +301,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addCategory = async (category: Omit<Category, 'id'>) => {
     try {
-      await firestoreService.addCategory(category);
+      await firestoreService.addCategory(restaurantId, category);
     } catch (error) {
       console.error('Error adding category:', error);
     }
@@ -290,7 +309,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const updateCategory = async (id: string, category: Partial<Category>) => {
     try {
-      await firestoreService.updateCategory(id, category);
+      await firestoreService.updateCategory(restaurantId, id, category);
     } catch (error) {
       console.error('Error updating category:', error);
     }
@@ -298,7 +317,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const deleteCategory = async (id: string) => {
     try {
-      await firestoreService.deleteCategory(id);
+      await firestoreService.deleteCategory(restaurantId, id);
     } catch (error) {
       console.error('Error deleting category:', error);
     }
@@ -306,7 +325,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addOrder = async (order: Omit<Order, 'id' | 'createdAt'>) => {
     try {
-      await firestoreService.addOrder(order);
+      await firestoreService.addOrder(restaurantId, order);
     } catch (error) {
       console.error('Error adding order:', error);
     }
@@ -314,7 +333,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const updateOrderStatus = async (id: string, status: Order['status']) => {
     try {
-      await firestoreService.updateOrderStatus(id, status);
+      await firestoreService.updateOrderStatus(restaurantId, id, status);
     } catch (error) {
       console.error('Error updating order status:', error);
     }
@@ -322,7 +341,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addReservation = async (reservation: Omit<Reservation, 'id' | 'createdAt' | 'status'>) => {
     try {
-      await firestoreService.addReservation(reservation);
+      await firestoreService.addReservation(restaurantId, reservation);
     } catch (error) {
       console.error('Error adding reservation:', error);
     }
@@ -330,7 +349,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const updateReservationStatus = async (id: string, status: Reservation['status']) => {
     try {
-      await firestoreService.updateReservationStatus(id, status);
+      await firestoreService.updateReservationStatus(restaurantId, id, status);
     } catch (error) {
       console.error('Error updating reservation status:', error);
     }
@@ -338,7 +357,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addFeedback = async (feedback: Omit<Feedback, 'id' | 'createdAt'>) => {
     try {
-      await firestoreService.addFeedback(feedback);
+      await firestoreService.addFeedback(restaurantId, feedback);
     } catch (error) {
       console.error('Error adding feedback:', error);
     }
@@ -346,7 +365,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const updateSettings = async (newSettings: Partial<RestaurantSettings>) => {
     try {
-      await firestoreService.updateSettings(newSettings);
+      await firestoreService.updateSettings(restaurantId, newSettings);
     } catch (error) {
       console.error('Error updating settings:', error);
     }
